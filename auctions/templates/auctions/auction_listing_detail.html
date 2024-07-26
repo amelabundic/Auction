@@ -1,0 +1,46 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ listing.title }}</h1>
+    <p>{{ listing.description }}</p>
+    <p>Current Price: {{ listing.current_price }}</p>
+    {% if listing.image_url %}
+        <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+    {% endif %}
+
+    <!-- Dodavanje/uklanjanje s liste praćenja, forma za ponudu, zatvaranje aukcije, komentari -->
+    {% if request.user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="watchlist">Add/Remove from Watchlist</button>
+        </form>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ bid_form.as_p }}
+        <button type="submit" name="bid">Place Bid</button>
+    </form>
+
+    {% if request.user == listing.seller %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="close_auction">Close Auction</button>
+        </form>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" name="add_comment">Add Comment</button>
+    </form>
+
+    <h2>Comments</h2>
+    {% for comment in listing.comments.all %}
+        <p>{{ comment.content }}</p>
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+{% endblock %}
